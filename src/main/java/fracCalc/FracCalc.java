@@ -14,7 +14,10 @@ public class FracCalc {
 		Scanner intro = new Scanner(System.in);
 		System.out.print("Enter a fraction problem: ");
 		String userResponse = intro.nextLine();
-		System.out.println(produceAnswer(userResponse));
+		while (!userResponse.equalsIgnoreCase("quit")) {
+			System.out.println(produceAnswer(userResponse));
+			userResponse = intro.nextLine();
+		}
 	}
 
 	// ** IMPORTANT ** DO NOT DELETE THIS FUNCTION. This function will be used to
@@ -51,10 +54,49 @@ public class FracCalc {
 				layout += input.charAt(i);
 
 			}
-
 		}
-		return operand2;
 
+		layout = input;
+		operand1 = layout.substring(0, layout.indexOf(' '));
+		layout = layout.substring(layout.indexOf(' ') + 1);
+		operator = layout.substring(0, layout.indexOf(' '));
+		layout = layout.substring(layout.indexOf(' ') + 1);
+		operand2 = layout;
+		String op2Whole = findWhole(operand2);
+		String op2Num = findNum(operand2);
+		String op2Denom = findDenom(operand2);
+
+		String chk2Answer = ("Whole: " + op2Whole + " Numerator: " + op2Num + " Denominator: " + op2Denom);
+
+		return chk2Answer;
+
+	}
+
+	public static String findWhole(String str) {
+		if (str.contains("_")) {
+			return str.substring(0, str.indexOf('_'));
+		} else if (str.contains("/")) {
+			return "0";
+		} else
+			return str;
+
+	}
+
+	public static String findNum(String str) {
+		if (str.contains("_")) {
+			return str.substring(str.indexOf('_') + 1, str.indexOf('/'));
+		} else if (str.contains("/")) {
+			return str.substring(0, str.indexOf('/'));
+		} else {
+			return "0";
+		}
+	}
+
+	public static String findDenom(String str) {
+		if (str.contains("/")) {
+			return str.substring(str.indexOf("/") + 1);
+		}
+		return "1";
 		// TODO: Implement this function to produce the solution to the input
 
 	}
