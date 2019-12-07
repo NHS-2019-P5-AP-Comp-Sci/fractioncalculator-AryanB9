@@ -8,15 +8,13 @@ import java.util.*;
 public class FracCalc {
 
 	public static void main(String[] args) {
-		System.out.println("Welcome to fraction calculator! ");
-		Scanner userInput = new Scanner(System.in);
+		Scanner console = new Scanner(System.in);
+		String input = "Input";
 		System.out.print("Enter a fraction problem: ");
-		String fractions = userInput.nextLine();
-		while (!(fractions.toUpperCase()).equals("QUIT")) {
-			System.out.println(produceAnswer(fractions));
-			fractions = userInput.nextLine();
-		}
-		userInput.close();
+
+		input = console.nextLine();
+
+		System.out.println(produceAnswer(input));
 
 	}
 
@@ -32,144 +30,188 @@ public class FracCalc {
 	// calculated
 	// e.g. return ==> "1_1/4"
 
-	// TODO: Implement this function to produce the solution to the input
-
-	public static String produceAnswer(String input) {
-		String operator;
-		int numsBefore;
-		int a = input.indexOf(" + ");
-		int b = input.indexOf(" - ");
-		int c = input.indexOf(" * ");
-		int d = input.indexOf(" / ");
-		if (a != -1) {
-			numsBefore = a;
-			operator = "+";
-		} else if (b != -1) {
-			numsBefore = b;
-			operator = "-";
-		} else if (c != -1) {
-			numsBefore = c;
-			operator = "*";
-		} else {
-			numsBefore = d;
-			operator = "/";
-		}
-		String initialFraction = "";
-		String secondaryFraction = "";
-		for (int i = 0; i < numsBefore; i++) {
-			initialFraction = initialFraction + input.charAt(i);
-		}
-		for (int i = 0; i < input.length() - 3 - numsBefore; i++) {
-			secondaryFraction = secondaryFraction + input.charAt(3 + numsBefore + i);
-		}
-
-		int firstWhole = Integer.parseInt(whole(initialFraction));
-		int secondWhole = Integer.parseInt(whole(secondaryFraction));
-		int firstNumerator = Integer.parseInt(numerator(initialFraction));
-		int secondNumerator = Integer.parseInt(numerator(secondaryFraction));
-		int firstDenominator = Integer.parseInt(denominator(initialFraction));
-		int secondDenominator = Integer.parseInt(denominator(secondaryFraction));
-
-		// sets up fractions for the calculation
-		if (initialFraction.indexOf("-") != -1 && initialFraction.indexOf("_") != -1) {
-			firstNumerator = (firstWhole * firstDenominator - firstNumerator);
-			if (operator.equals("+") || operator.equals("-")) {
-				firstNumerator *= secondDenominator;
-			}
-		} else if (operator.equals("+") || operator.equals("-")) {
-			firstNumerator = (firstNumerator + firstWhole * firstDenominator) * secondDenominator;
-		} else {
-			firstNumerator = (firstNumerator + firstWhole * firstDenominator);
-		}
-
-		if (secondaryFraction.indexOf("-") != -1 && secondaryFraction.indexOf("_") != -1) {
-			secondNumerator = (secondWhole * secondDenominator - secondNumerator);
-			if (operator.equals("+") || operator.equals("-")) {
-				secondNumerator *= firstDenominator;
-			}
-		} else if (operator.equals("+") || operator.equals("-")) {
-			secondNumerator = (secondNumerator + secondWhole * secondDenominator) * firstDenominator;
-		} else {
-			secondNumerator = (secondNumerator + secondWhole * secondDenominator);
-		}
-		if (operator.equals("+") || operator.equals("-")) {
-			firstDenominator *= secondDenominator;
-			secondDenominator = firstDenominator;
-		}
-
-		// performs operations and gives out unsimplified improper fraction
-		int answerNumerator = 0;
-		int answerDenominator = 0;
-		if (operator.equals("+")) {
-			answerNumerator = firstNumerator + secondNumerator;
-			answerDenominator = firstDenominator;
-		} else if (operator.equals("-")) {
-			answerNumerator = firstNumerator - secondNumerator;
-			answerDenominator = firstDenominator;
-		} else if (operator.equals("*")) {
-			answerNumerator = firstNumerator * secondNumerator;
-			answerDenominator = firstDenominator * secondDenominator;
-		} else if (operator.equals("/")) {
-			int tempNumerator = secondNumerator;
-			secondNumerator = secondDenominator;
-			secondDenominator = tempNumerator;
-			answerNumerator = firstNumerator * secondNumerator;
-			answerDenominator = firstDenominator * secondDenominator;
-		}
-
-		return answerNumerator + "/" + answerDenominator;
+	public static int locateNextChar(String str, int currentIndex, char findMe) {
+		str = str.substring(currentIndex);
+		return currentIndex + str.indexOf(findMe);
 	}
 
-	public static String whole(String fraction) {
-		String whole = "";
-		if (fraction.indexOf("/") == -1) {
-			whole = fraction;
-		} else if (fraction.indexOf("_") != -1) {
-			int numsBeforeUnderscores = fraction.indexOf("_");
-			for (int i = 0; i < numsBeforeUnderscores; i++) {
-				whole = whole + fraction.charAt(i);
-			}
-		} else if (fraction.indexOf("_") == -1) {
-			whole = "0";
+	public static String produceAnswer(int whole1, int whole2, int n1, int n2, int d1, int d2, char operator) {
+		// testing for code errors
+		if (d1 == 0 || d2 == 0) {
+			return "ERROR: cannot divide by zero";
 		}
-		return whole;
+
+		int whole = 0;
+		int nume = 0;
+		int denom = 0;
+		if (operator == '-') {
+			nume = findCommonDenom(topHeavafyFraction(whole1, n1, d1)[0], topHeavafyFraction(whole1, n1, d1)[1],
+					topHeavafyFraction(whole2, n2, d2)[0], topHeavafyFraction(whole2, n2, d2)[1])[0]
+					- findCommonDenom(topHeavafyFraction(whole1, n1, d1)[0], topHeavafyFraction(whole1, n1, d1)[1],
+							topHeavafyFraction(whole2, n2, d2)[0], topHeavafyFraction(whole2, n2, d2)[1])[1];
+			denom = findCommonDenom(topHeavafyFraction(whole1, n1, d1)[0], topHeavafyFraction(whole1, n1, d1)[1],
+					topHeavafyFraction(whole2, n2, d2)[0], topHeavafyFraction(whole2, n2, d2)[1])[2];
+		} else if (operator == '*') {
+			nume = topHeavafyFraction(whole1, n1, d1)[0] * topHeavafyFraction(whole2, n2, d2)[0];
+			denom = topHeavafyFraction(whole1, n1, d1)[1] * topHeavafyFraction(whole2, n2, d2)[1];
+		} else if (operator == '/') {
+			nume = topHeavafyFraction(whole1, n1, d1)[0] * topHeavafyFraction(whole2, n2, d2)[1];
+			denom = topHeavafyFraction(whole1, n1, d1)[1] * topHeavafyFraction(whole2, n2, d2)[0];
+		} else {
+			nume = findCommonDenom(topHeavafyFraction(whole1, n1, d1)[0], topHeavafyFraction(whole1, n1, d1)[1],
+					topHeavafyFraction(whole2, n2, d2)[0], topHeavafyFraction(whole2, n2, d2)[1])[0]
+					+ findCommonDenom(topHeavafyFraction(whole1, n1, d1)[0], topHeavafyFraction(whole1, n1, d1)[1],
+							topHeavafyFraction(whole2, n2, d2)[0], topHeavafyFraction(whole2, n2, d2)[1])[1];
+			denom = findCommonDenom(topHeavafyFraction(whole1, n1, d1)[0], topHeavafyFraction(whole1, n1, d1)[1],
+					topHeavafyFraction(whole2, n2, d2)[0], topHeavafyFraction(whole2, n2, d2)[1])[2];
+		}
+		// System.out.println(whole + "_" + nume + "/" + denom);
+		int[] SimpFrac = new int[3];
+		for (int element = 0; element < 3; element++) {
+			SimpFrac[element] = simplyfyFraction(nume, denom)[element];
+		}
+		whole = SimpFrac[0];
+		nume = SimpFrac[1];
+		denom = SimpFrac[2];
+		if (whole != 0 && nume != 0) {
+			return whole + "_" + nume + "/" + denom;
+		} else if (whole == 0 && nume != 0) {
+			return nume + "/" + denom;
+		}
+		return whole + "";
 	}
 
-	public static String numerator(String fraction) {
-		String numerator = "";
-		if (fraction.indexOf("/") == -1) {
-			numerator = "0";
-		} else if (fraction.indexOf("_") != -1) {
-			int numsBeforeSlashes = fraction.indexOf("/");
-			int numsBeforeUnderscores = fraction.indexOf("_");
-			for (int i = 0; i < numsBeforeSlashes - numsBeforeUnderscores - 1; i++) {
-				numerator = numerator + fraction.charAt(numsBeforeUnderscores + 1 + i);
-			}
-		} else if (fraction.indexOf("_") == -1) {
-			int numsBeforeSlashes = fraction.indexOf("/");
-			for (int i = 0; i < numsBeforeSlashes; i++) {
-				numerator = numerator + fraction.charAt(i);
-			}
+	public static int[] topHeavafyFraction(int whole, int numerator, int denomenator) {
+		boolean negativity = false;
+		if (whole < 0 || numerator < 0 || denomenator < 0) {
+			negativity = true;
 		}
-		return numerator;
+		int nume = Math.abs(numerator) + (Math.abs(denomenator) * Math.abs(whole));
+		int[] topHfrac = { nume, Math.abs(denomenator) };
+		if (negativity) {
+			topHfrac[0] = -nume;
+		}
+		return topHfrac;
 	}
 
-	public static String denominator(String fraction) {
-		String denominator = "";
-		if (fraction.indexOf("/") == -1) {
-			denominator = "1";
-		} else if (fraction.indexOf("_") != -1) {
-			int numsBeforeSlashes = fraction.indexOf("/");
-			for (int i = 0; i < fraction.length() - numsBeforeSlashes - 1; i++) {
-				denominator = denominator + fraction.charAt(numsBeforeSlashes + 1 + i);
-			}
-		} else if (fraction.indexOf("_") == -1) {
-			int numsBeforeSlashes = fraction.indexOf("/");
-			for (int i = 0; i < fraction.length() - numsBeforeSlashes - 1; i++) {
-				denominator = denominator + fraction.charAt(numsBeforeSlashes + 1 + i);
+	public static int[] simplyfyFraction(int nume, int denom) {
+		boolean negativity = false;
+		if ((nume < 0 && denom > 0) || (denom < 0 && nume > 0)) {
+			negativity = true;
+		}
+		int whole = 0;
+		int numerator = Math.abs(nume);
+		int denomenator = Math.abs(denom);
+		if (numerator > denomenator) {
+			while (numerator > denomenator) {
+				numerator -= denomenator;
+				whole++;
 			}
 		}
-		return denominator;
+		if (numerator == denomenator) {
+			whole++;
+			numerator = 0;
+			denomenator = 0;
+		}
+		// loops through checking to see if it is simplifyable and breaks when it no
+		// longer becomes simpler
+		boolean canSimp = true;
+		int preSimpDenom = denomenator;
+		while (canSimp) {
+			preSimpDenom = denomenator;
+			for (int num = 1; num < denomenator / 2 + 1; num++) {
+				if (denomenator % num == 0 && numerator % num == 0) {
+					numerator /= num;
+					denomenator /= num;
+				}
+			}
+			if (preSimpDenom == denomenator) {
+				canSimp = false;
+			}
+		}
+		int[] simpFrac = { whole, numerator, denomenator };
+		if (negativity && whole != 0) {
+			simpFrac[0] = -whole;
+		} else if (negativity) {
+			simpFrac[1] = -numerator;
+		}
+		return simpFrac;
+	}
+
+	public static int[] findCommonDenom(int n1, int d1, int n2, int d2) {
+		int nume1 = n1 * d2;
+		int nume2 = n2 * d1;
+		int commDenom = d1 * d2;
+		int[] commFrac = { nume1, nume2, commDenom };
+		return commFrac;
+	}
+
+	public static String produceAnswer(String str) {
+		if (str.equals("Input")) {
+			return "Welcome, to the fraction calculator";
+		}
+		int whole1 = 0;
+		int whole2 = 0;
+		int numerator1 = 0;
+		int denomenator1 = 1;
+		int numerator2 = 0;
+		int denomenator2 = 1;
+		char operator = '+'; // default as + so if only 1 num inputed it will add nothing to it
+		int operIndex = 0;
+		// must go first to get operator so it doesn't break when testing for if it is
+		// the first or second number
+		for (int ch = 0; ch < str.length(); ch++) {
+			if (ch > 0 && ch < str.length() - 2
+					&& (str.substring(ch - 1, ch + 2).equals(" + ") || str.substring(ch - 1, ch + 2).equals(" * ")
+							|| str.substring(ch - 1, ch + 2).equals(" - ")
+							|| str.substring(ch - 1, ch + 2).equals(" / "))) {
+				operator = str.charAt(ch);
+				operIndex = ch - 1;
+			}
+		}
+		// makes sure the code does not break if there is no operator present
+		if (operIndex == 0) {
+			operIndex = str.length();
+		}
+		for (int ch = 0; ch < str.length(); ch++) {
+			if (str.charAt(ch) == '_') {
+				if (operIndex > ch) { // tests code if first or second number
+					whole1 = Integer.parseInt(str.substring(0, ch));
+					numerator1 = Integer.parseInt(str.substring(ch + 1, locateNextChar(str, ch, '/')));
+				} else {
+					whole2 = Integer.parseInt(str.substring(operIndex + 3, ch));
+					numerator2 = Integer.parseInt(str.substring(ch + 1, locateNextChar(str, ch, '/')));
+				}
+			} else if (str.charAt(ch) == '/' && !str.substring(ch - 1, ch + 2).equals(" / ")) {
+				if (operIndex > ch) { // tests if first or second number
+					denomenator1 = Integer.parseInt(str.substring(ch + 1, operIndex));
+				} else {
+					denomenator2 = Integer.parseInt(str.substring(ch + 1));
+				}
+			}
+			// testing code for fractions or whole numbers by themselves
+			if (!str.substring(0, operIndex).contains("_")) {
+				if (!str.substring(0, operIndex).contains("/")) {
+					whole1 = Integer.parseInt(str.substring(0, operIndex));
+				} else {
+					numerator1 = Integer
+							.parseInt(str.substring(0, locateNextChar(str.substring(0, operIndex), 0, '/')));
+				}
+			}
+			if (str.contains(" " + operator + " ")) {
+				if (!str.substring(operIndex, str.length()).contains("_")) {
+					if (!str.substring(operIndex + 3, str.length()).contains("/")) {
+						whole2 = Integer.parseInt(str.substring(operIndex + 3, str.length()));
+					} else {
+						numerator2 = Integer.parseInt(str.substring(operIndex + 3,
+								locateNextChar(str.substring(operIndex + 3), 0, '/') + operIndex + 3));
+					}
+				}
+			}
+		}
+		// System.out.println(whole1 + "_" + numerator1 + "/" + denomenator1 + " " +
+		// operator + " " + whole2 + "_" + numerator2 + "/" + denomenator2);
+		return produceAnswer(whole1, whole2, numerator1, numerator2, denomenator1, denomenator2, operator);
 	}
 
 }
